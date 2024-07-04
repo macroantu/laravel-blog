@@ -6,6 +6,7 @@ use Illuminate\Http\UploadedFile;
 use BinshopsBlog\Events\UploadedImage;
 use BinshopsBlog\Models\BinshopsBlogPost;
 use File;
+use Illuminate\Support\Str;
 
 trait UploadFileTrait
 {
@@ -55,18 +56,16 @@ trait UploadFileTrait
             // add suffix if $i>1
             $suffix = $i > 1 ? '-' . str_random(5) : '';
 
-            $attempt = str_slug($base . $suffix . $wh) . $ext;
+            $attempt = Str::slug($base . $suffix . $wh) . $ext;
 
             if (!File::exists($this->image_destination_path() . "/" . $attempt)) {
                 // filename doesn't exist, let's use it!
                 return $attempt;
             }
-
         }
 
         // too many attempts...
         throw new \RuntimeException("Unable to find a free filename after $i attempts - aborting now.");
-
     }
 
 
@@ -133,7 +132,6 @@ trait UploadFileTrait
             'w' => $w,
             'h' => $h,
         ];
-
     }
 
     /**
@@ -162,7 +160,7 @@ trait UploadFileTrait
         if (is_array($image_size_details)) {
             return '-' . $image_size_details['w'] . 'x' . $image_size_details['h'];
         } elseif (is_string($image_size_details)) {
-            return "-" . str_slug(substr($image_size_details, 0, 30));
+            return "-" . Str::slug(substr($image_size_details, 0, 30));
         }
 
         // was not a string or array, so error
@@ -199,5 +197,4 @@ trait UploadFileTrait
         }
         return $base;
     }
-
 }
