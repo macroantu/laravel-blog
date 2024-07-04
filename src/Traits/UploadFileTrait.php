@@ -7,6 +7,7 @@ use BinshopsBlog\Events\UploadedImage;
 use BinshopsBlog\Models\BinshopsBlogPost;
 use File;
 use Illuminate\Support\Str;
+use Intervention\Image\Laravel\Facades\Image;
 
 trait UploadFileTrait
 {
@@ -54,7 +55,7 @@ trait UploadFileTrait
         for ($i = 1; $i <= self::$num_of_attempts_to_find_filename; $i++) {
 
             // add suffix if $i>1
-            $suffix = $i > 1 ? '-' . str_random(5) : '';
+            $suffix = $i > 1 ? '-' . Str::random(5) : '';
 
             $attempt = Str::slug($base . $suffix . $wh) . $ext;
 
@@ -96,7 +97,7 @@ trait UploadFileTrait
         $destinationPath = $this->image_destination_path();
 
         // make image
-        $resizedImage = Image::make($photo->getRealPath());
+        $resizedImage = Image::read($photo->getRealPath());
 
 
         if (is_array($image_size_details)) {
@@ -105,7 +106,7 @@ trait UploadFileTrait
             $h = $image_size_details['h'];
 
             if (isset($image_size_details['crop']) && $image_size_details['crop']) {
-                $resizedImage = $resizedImage->fit($w, $h);
+                $resizedImage = $resizedImage->resize($w, $h);
             } else {
                 $resizedImage = $resizedImage->resize($w, $h, function ($constraint) {
                     $constraint->aspectRatio();
@@ -192,7 +193,7 @@ trait UploadFileTrait
         $base = substr($suggested_title, 0, 100);
         if (!$base) {
             // if we have an empty string then we should use a random one:
-            $base = 'image-' . str_random(5);
+            $base = 'image-' . Str::random(5);
             return $base;
         }
         return $base;
